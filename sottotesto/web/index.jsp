@@ -7,6 +7,6 @@ pageEncoding="ISO-8859-1"%>
 <title>Index</title>  
 </head>  
 <body>  
-<jsp:forward page="/hello" />  
+<jsp:forward page="/home" />  
 </body>  
 </html>  
