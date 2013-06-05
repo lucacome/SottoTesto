@@ -4,11 +4,13 @@ pageEncoding="ISO-8859-1"%>
 <html>  
 <head>  
 <meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1">  
-<title>Hello Web App</title>  
+<title>SottoTesto Web App</title>  
 </head>  
 <body>  
-<h3><%=(String)request.getAttribute("hello_string")%></h3>
-<textarea rows="4" cols="50" name="inputtext" form="textform">
+<h3>Scrivere una frase</h3>
+<textarea rows="4" cols="50" name="inputtext" form="textform"
+			onfocus="if(this.value == 'Enter text here...') this.value='';"
+			onblur="if(this.value == 'Enter text here...') this.value='';">
 Enter text here...</textarea>
 <form action="home" id="textform" method="post">
 <input type="submit" value="Submit">

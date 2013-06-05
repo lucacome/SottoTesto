@@ -13,15 +13,6 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import com.google.gson.Gson;
-import com.hp.hpl.jena.query.Query;
-import com.hp.hpl.jena.query.QueryExecution;
-import com.hp.hpl.jena.query.QueryExecutionFactory;
-import com.hp.hpl.jena.query.QueryFactory;
-import com.hp.hpl.jena.query.ResultSet;
-import com.hp.hpl.jena.query.ResultSetFormatter;
-import com.sottotesto.TagmeDataWrapper.TagmeData;
-
 
 public class Tagme extends HttpServlet implements Servlet{
 	private static final long serialVersionUID = 2L;
@@ -33,9 +24,8 @@ public Tagme() {
 @Override
 protected void doPost(HttpServletRequest request, HttpServletResponse response)
 		throws ServletException, IOException {
-	// TODO Auto-generated method stub
-//	request.setAttribute("hello_string", request.getParameter("inputtext"));  
-	//request.getRequestDispatcher("/home.jsp").forward(request, response);
+	
+	//config TAGME request parameters
 	URL url = new URL ("http://tagme.di.unipi.it/tag");
 	String charset = "UTF-8";
 	String param1name = "text";
@@ -43,72 +33,46 @@ protected void doPost(HttpServletRequest request, HttpServletResponse response)
 	String param2name = "key";
 	String param2value = "plclcd321";
 	String param3name = "include_categories";
-	String param3value = "true";
-	
+	String param3value = "true";	
 	String query = String.format("%s=%s&%s=%s&%s=%s", URLEncoder.encode(param1name, charset), URLEncoder.encode(param1value, charset), URLEncoder.encode(param2name, charset), URLEncoder.encode(param2value, charset), URLEncoder.encode(param3name, charset), URLEncoder.encode(param3value, charset));
 	
+	//open TAGME connection
 	HttpURLConnection connessione = (HttpURLConnection) url.openConnection();
 	connessione.setRequestMethod("POST");
 	connessione.setDoOutput(true);
 
+	//get TAGME response
 	OutputStream output = null;
 	try {
 		output = connessione.getOutputStream();
 		output.write(query.getBytes(charset));
-	} finally {
-		if (output != null) try { output.close(); } catch (IOException err){}
-			
+		} 
+	finally {
+		if (output != null) try { output.close(); } catch (IOException err){}			
 		}
 	
-	
+	//read TAGME response
 	int rspCode = connessione.getResponseCode();
 	String messaggio = connessione.getResponseMessage(); 
-	String contenttype = connessione.getContentType();
-	
+	String contenttype = connessione.getContentType();	
 	String responsetag = "";
-	String json = "";
-	TagmeData data = null;
-
-	
-	if (contenttype.contains("application/json")){
-		Gson gson = new Gson();
-		Scanner input = new Scanner(connessione.getInputStream());
-		
+	if (contenttype.contains("application/json")){		
+		Scanner input = new Scanner(connessione.getInputStream());		
 		while (input.hasNextLine())
 			responsetag += (input.nextLine());
-		
-//		json = gson.toJson(responsetag);
-		data = gson.fromJson(responsetag, TagmeData.class);
-		
-		
+		input.close();		
 	}else{
-		json = "nessuna stringa";
+		responsetag = "nessuna stringa";
 	}
 
-
-	//String.valueOf(rspCode)+messaggio+contenttype+
-	String titletag = data.annotations.get(0).title;
-	titletag = titletag.replaceAll(" ", "_");
-	
-    String s2 = "PREFIX  dbpprop: <http://dbpedia.org/property/>\n" +
-    		"\n" +
-    		"SELECT  *\n" +
-            "WHERE {\n" +
-            "<http://dbpedia.org/resource/" + titletag + "> dbpprop:placeOfBirth ?nat .\n" +
-            "  }\n" +
-            "";
-
-    Query query2 = QueryFactory.create(s2); //s2 = the query above
-    QueryExecution qExe = QueryExecutionFactory.sparqlService( "http://dbpedia.org/sparql", query2 );
-    ResultSet results = qExe.execSelect(); 
-    
-    
-	
-	request.setAttribute("hello_string", ResultSetFormatter.asText(results));  
-//	request.setAttribute("hello_string", titletag);  
-
-	request.getRequestDispatcher("/home.jsp").forward(request, response);	
-  
+	//config & view JSP
+	String json = responsetag.replaceAll(",", ",<br>");
+	request.setAttribute("rspCode", String.valueOf(rspCode));
+	request.setAttribute("msg", messaggio);
+	request.setAttribute("cntType", contenttype);
+	request.setAttribute("json", json);  
+	request.setAttribute("responsetag", responsetag);	
+	request.getRequestDispatcher("/tagme.jsp").forward(request, response);
 }
 
 

@@ -17,10 +17,19 @@
 <servlet-name>Tagme</servlet-name>  
 <servlet-class>com.sottotesto.Tagme</servlet-class>  
 </servlet>  
-  
 <servlet-mapping>  
 <servlet-name>Tagme</servlet-name>  
 <url-pattern>/tagme</url-pattern>  
+</servlet-mapping> 
+
+
+<servlet>  
+<servlet-name>DBPedia</servlet-name>  
+<servlet-class>com.sottotesto.DBPedia</servlet-class>  
+</servlet>  
+<servlet-mapping>  
+<servlet-name>DBPedia</servlet-name>  
+<url-pattern>/dbpedia</url-pattern>  
 </servlet-mapping> 
   
 <welcome-file-list>  
