@@ -14,6 +14,12 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import com.google.gson.Gson;
+import com.hp.hpl.jena.query.Query;
+import com.hp.hpl.jena.query.QueryExecution;
+import com.hp.hpl.jena.query.QueryExecutionFactory;
+import com.hp.hpl.jena.query.QueryFactory;
+import com.hp.hpl.jena.query.ResultSet;
+import com.hp.hpl.jena.query.ResultSetFormatter;
 import com.sottotesto.TagmeDataWrapper.TagmeData;
 
 
@@ -81,8 +87,26 @@ protected void doPost(HttpServletRequest request, HttpServletResponse response)
 
 
 	//String.valueOf(rspCode)+messaggio+contenttype+
+	String titletag = data.annotations.get(0).title;
+	titletag = titletag.replaceAll(" ", "_");
 	
-	request.setAttribute("hello_string", data.timestamp);  
+    String s2 = "PREFIX  dbpprop: <http://dbpedia.org/property/>\n" +
+    		"\n" +
+    		"SELECT  *\n" +
+            "WHERE {\n" +
+            "<http://dbpedia.org/resource/" + titletag + "> dbpprop:placeOfBirth ?nat .\n" +
+            "  }\n" +
+            "";
+
+    Query query2 = QueryFactory.create(s2); //s2 = the query above
+    QueryExecution qExe = QueryExecutionFactory.sparqlService( "http://dbpedia.org/sparql", query2 );
+    ResultSet results = qExe.execSelect(); 
+    
+    
+	
+	request.setAttribute("hello_string", ResultSetFormatter.asText(results));  
+//	request.setAttribute("hello_string", titletag);  
+
 	request.getRequestDispatcher("/home.jsp").forward(request, response);	
   
 }
